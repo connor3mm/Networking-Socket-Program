@@ -36,4 +36,8 @@ public class TransportLayerPacket {
         return data;
     }
 
+    public void setData(byte[] data) { this.data = data;}
+
+
+
 }
