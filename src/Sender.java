@@ -5,14 +5,20 @@ public class Sender extends TransportLayer {
         super(name, simulator);
     }
 
+    Sender sender;
+    TransportLayerPacket packet;
+
     @Override
     public void init() {
+        sender = new Sender("sender", simulator);
+        packet = null;
+        System.out.println("The sender has been initialised!" + getName());
 
     }
 
     @Override
     public void rdt_send(byte[] data) {
-
+        
     }
 
     @Override
