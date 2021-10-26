@@ -38,6 +38,15 @@ public class TransportLayerPacket {
 
     public void setData(byte[] data) { this.data = data;}
 
+    public int getSeqnum() {
+        return seqnum;
+    }
 
+    public int getAcknum() {
+        return acknum;
+    }
 
+    public String getChecksum() {
+        return checksum;
+    }
 }
