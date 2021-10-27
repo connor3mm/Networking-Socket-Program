@@ -59,7 +59,6 @@ public class Sender extends TransportLayer {
 
     @Override
     public void timerInterrupt() {
-
         simulator.stopTimer(sender);
     }
 
