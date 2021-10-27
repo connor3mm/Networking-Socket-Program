@@ -27,11 +27,12 @@ public class Sender extends TransportLayer {
     public void rdt_send(byte[] data) {
         packet = mk_packet(data,0);
         System.out.println("The sender has created the packet");
+
         // TODO calculate checksum
         simulator.sendToNetworkLayer(sender,packet);
         System.out.println("Packet with data: " + Arrays.toString(data) + " has been sent to network layer");
         System.out.println("The timer has started");
-        simulator.startTimer(sender,1.0);
+        simulator.startTimer(sender,1);
 
     }
 
@@ -40,7 +41,7 @@ public class Sender extends TransportLayer {
     public void rdt_receive(TransportLayerPacket pkt) {
         System.out.println("The sender receiving an ACKNOWLEDGMENT packet");
         TransportLayerPacket receivePacket = new TransportLayerPacket(pkt);
-        timerInterrupt();
+
         if(corrupt(receivePacket) || !checkAcknowledgmentNum(receivePacket)) {
             System.out.println("The packet has been corrupted or has not been acknowledged");
             timerInterrupt();
@@ -58,6 +59,7 @@ public class Sender extends TransportLayer {
 
     @Override
     public void timerInterrupt() {
+
         simulator.stopTimer(sender);
     }
 

@@ -8,7 +8,7 @@ public class Main {
         sim.setSender(sender);
 
         // TODO: Set the receiver (sim.setReceiver)
-        Sender receiver = new Sender("Receiver",sim);
+        Receiver receiver = new Receiver("Receiver",sim);
         sim.setReceiver(receiver);
         sim.runSimulation();
     }
