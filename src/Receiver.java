@@ -8,7 +8,7 @@ public class Receiver extends TransportLayer {
     }
 
     Receiver receiver;
-    int seqNum;
+    int previousSeqNum;
     TransportLayerPacket packet;
 
     @Override
@@ -16,7 +16,7 @@ public class Receiver extends TransportLayer {
         receiver = new Receiver("Receiver", simulator);
         System.out.println("The Receiver has been initialised!" + getName());
         packet = null;
-        seqNum = -1;
+        previousSeqNum = -1;
     }
 
 
@@ -36,9 +36,21 @@ public class Receiver extends TransportLayer {
 
     @Override
     public void rdt_receive(TransportLayerPacket pkt) {
+        packet = new TransportLayerPacket(pkt);
 
-
-
+        if(corrupt()) {
+            System.out.println("The packet has been corrupted");
+            System.out.println("Waiting for a new packet to be sent");
+        } else if(duplicate()) {
+            System.out.println("Duplicate packet! Discard!!!");
+            packet = null;
+        } else {
+            System.out.println("Receiver has received the packet");
+            simulator.sendToApplicationLayer(receiver,packet.getData());
+            System.out.println("Packet has been send to application layer");
+            System.out.println("Sending ACK to the sender");
+            rdt_send(packet.getData());
+        }
 
     }
 
@@ -46,4 +58,23 @@ public class Receiver extends TransportLayer {
     public void timerInterrupt() {
         simulator.stopTimer(receiver);
     }
+
+    public boolean corrupt() {
+        if(packet == null) {
+            return true;
+        }
+        else {
+            return false;
+        }
+    }
+
+    public boolean duplicate() {
+        if(previousSeqNum == packet.getSeqnum()) {
+            return true;
+        }
+        else {
+            return false;
+        }
+    }
+
 }
