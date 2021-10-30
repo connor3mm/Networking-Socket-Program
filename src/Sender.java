@@ -59,7 +59,7 @@ public class Sender extends TransportLayer {
         System.out.println("The sender receiving an ACKNOWLEDGMENT packet");
         received_packet = new TransportLayerPacket(pkt);
 
-        if(corrupt(received_packet) || !checkAcknowledgmentNum(received_packet)) {
+        if(corrupt() || !checkAcknowledgmentNum()) {
             System.out.println("The packet has been corrupted or has not been acknowledged");
             timerInterrupt();
             System.out.println("The timer has stopped!");
@@ -79,8 +79,8 @@ public class Sender extends TransportLayer {
         simulator.stopTimer(sender);
     }
 
-    public boolean checkAcknowledgmentNum(TransportLayerPacket receivePacket) {
-        if(receivePacket.getAcknum() == 0) {
+    public boolean checkAcknowledgmentNum() {
+        if(received_packet.getAcknum() == 0) {
             return true;
         }
         else {
@@ -88,12 +88,11 @@ public class Sender extends TransportLayer {
         }
     }
 
-    public boolean corrupt(TransportLayerPacket receivePacket) {
-        if(receivePacket == null) {
+    public boolean corrupt() {
+        if(received_packet == null || !verifyChecksum()) {
             return true;
         }
         else {
-            if(verifyChecksum()) return true;
             return false;
         }
     }
