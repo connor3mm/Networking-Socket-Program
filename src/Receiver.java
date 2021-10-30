@@ -1,4 +1,6 @@
 import java.util.Arrays;
+import java.util.zip.CRC32;
+import java.util.zip.Checksum;
 
 public class Receiver extends TransportLayer {
 
@@ -21,7 +23,14 @@ public class Receiver extends TransportLayer {
 
 
     public TransportLayerPacket mk_packet(byte[] data, int seqnum) {
-        TransportLayerPacket newPacket = new TransportLayerPacket(seqnum,1,null ,data);
+        //checksum for the packet we send to Sender
+        Checksum checksum = new CRC32();
+        checksum.update(data, 0, data.length);
+        String checksumString = Long.toBinaryString(checksum.getValue());
+
+        System.out.println("dfvgbhnjm:" );
+
+        TransportLayerPacket newPacket = new TransportLayerPacket(seqnum,1,checksumString ,data);
         return newPacket;
     }
 

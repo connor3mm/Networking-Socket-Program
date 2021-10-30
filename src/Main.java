@@ -1,3 +1,6 @@
+import java.util.zip.CRC32;
+import java.util.zip.Checksum;
+
 public class Main {
 
     public static void main(String[] args) {
@@ -11,6 +14,7 @@ public class Main {
         Receiver receiver = new Receiver("Receiver",sim);
         sim.setReceiver(receiver);
         sim.runSimulation();
+
     }
 
 }
