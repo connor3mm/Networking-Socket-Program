@@ -53,7 +53,13 @@ public class Sender extends TransportLayer {
         } else {
             sent_packet = mk_packet(data,packetSeqNum);
             System.out.println("The sender has created the packet");
-
+            prevSeqNum = packetSeqNum;
+            if(packetSeqNum == 0){
+                packetSeqNum++;
+            }else{
+                packetSeqNum--;
+            }
+            System.out.println(sent_packet.getSeqnum());
             simulator.sendToNetworkLayer(this,sent_packet);
             System.out.println("Packet with data: " + Arrays.toString(data) + " has been sent to network layer");
 
@@ -71,10 +77,6 @@ public class Sender extends TransportLayer {
         System.out.println("The sender receiving an ACKNOWLEDGMENT packet");
         received_packet = new TransportLayerPacket(pkt);
 
-        for (byte a: received_packet.getData()) {
-            System.out.print(a);
-        }
-
         if(corrupt() || !checkAcknowledgmentNum()) {
             System.out.println("The packet has been corrupted or has not been acknowledged");
 //            timerInterrupt();
@@ -87,7 +89,9 @@ public class Sender extends TransportLayer {
         } else {
             System.out.println("ACK Received");
             senderStatus = "Primed";
-            received_packet.setAcknum(0);
+            System.out.println(received_packet.getSeqnum());
+            System.out.println(received_packet.getAcknum());
+            System.out.println("--------------");
         }
 
 
@@ -98,12 +102,12 @@ public class Sender extends TransportLayer {
         simulator.stopTimer(sender);
     }
 
+
     public boolean checkAcknowledgmentNum() {
         if (received_packet.getSeqnum() == prevSeqNum){
-            return received_packet.getAcknum() == 1;
+            return received_packet.getAcknum() == sent_packet.getAcknum();
         }
-        return true;
-
+        return false;
     }
 
     public boolean corrupt() {
@@ -160,6 +164,18 @@ public class Sender extends TransportLayer {
             }
 
             return true;
+    }
+
+    public String oneComp(){
+        String checksumFromSender = sent_packet.getChecksum();
+
+        char[] compArrayOrigin = new char[checksumFromSender.length()];
+        for(int i=0; i<checksumFromSender.length();i++ ){
+            if(checksumFromSender.toCharArray()[i] == '0') compArrayOrigin[i] = '1';
+            else compArrayOrigin[i] = '0';
+        }
+
+        return"";
     }
 
 }

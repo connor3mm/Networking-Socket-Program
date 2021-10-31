@@ -28,7 +28,7 @@ public class Receiver extends TransportLayer {
         checksum.update(data, 0, data.length);
         String checksumString = Long.toBinaryString(checksum.getValue());
 
-        TransportLayerPacket newPacket = new TransportLayerPacket(seqnum,1,checksumString ,data);
+        TransportLayerPacket newPacket = new TransportLayerPacket(seqnum,packet.getAcknum(),checksumString ,data);
         return newPacket;
     }
 
