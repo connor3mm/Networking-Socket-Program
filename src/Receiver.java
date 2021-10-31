@@ -16,7 +16,7 @@ public class Receiver extends TransportLayer {
     @Override
     public void init() {
         receiver = new Receiver("Receiver", simulator);
-        System.out.println("The Receiver has been initialised!" + getName());
+        System.out.println("The Receiver has been initialised!" + getName() + "\n");
         packet = null;
         previousSeqNum = -1;
     }
@@ -59,7 +59,7 @@ public class Receiver extends TransportLayer {
             System.out.println("Packet has been send to application layer");
             System.out.println("Sending ACK to the sender");
 
-           this.rdt_send(packet.getData());
+            this.rdt_send(packet.getData());
         }
 
     }
@@ -69,7 +69,7 @@ public class Receiver extends TransportLayer {
     }
 
     public boolean corrupt() {
-        if(packet == null) {
+        if(packet == null || !verifyChecksum()) {
             return true;
         }
         else {
@@ -84,6 +84,46 @@ public class Receiver extends TransportLayer {
         else {
             return false;
         }
+    }
+
+
+    public boolean verifyChecksum(){
+
+        String checksumFromSender = packet.getChecksum();
+
+        Checksum checksum = new CRC32();
+        checksum.update(packet.getData(), 0, packet.getData().length);
+        String checksumString = Long.toBinaryString(checksum.getValue());
+
+        String result = addBits(checksumFromSender, checksumString);
+        System.out.println("Adding the checksum: " + result);
+
+        //checking if the checksum is valid
+        for(int i=0; i<result.length();i++ ){
+            if(result.charAt(i)=='0') return false;
+        }
+
+        return true;
+    }
+
+    public String addBits(String a, String b){
+        String result = "";
+        int carry = 0;
+        int sum;
+
+        for (int i = a.length() - 1; i >= 0; i--){
+            int first = a.charAt(i)  - '0';
+            int second = b.charAt(i)  - '0';
+
+            sum = (first ^ second ^ carry) + '0';
+            result = (char) sum + result;
+
+            carry = (first & second) | (second & carry) | (first & carry);
+        }
+
+        if (carry == 1) result = "1" + result;
+        //System.out.println("Testing result:" + result);
+        return result;
     }
 
 }

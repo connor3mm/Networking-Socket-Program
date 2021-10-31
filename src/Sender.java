@@ -35,6 +35,9 @@ public class Sender extends TransportLayer {
         checksum.update(data, 0, data.length);
         String checksumString = Long.toBinaryString(checksum.getValue());
 
+        checksumString = oneComp(checksumString);
+
+
         TransportLayerPacket newPacket = new TransportLayerPacket(seqnum,akNum,checksumString,data);
         if(akNum == 0){
             akNum++;
@@ -59,12 +62,12 @@ public class Sender extends TransportLayer {
             }else{
                 packetSeqNum--;
             }
-            System.out.println(sent_packet.getSeqnum());
+
             simulator.sendToNetworkLayer(this,sent_packet);
             System.out.println("Packet with data: " + Arrays.toString(data) + " has been sent to network layer");
 
             System.out.println("The timer has started");
-            simulator.startTimer(sender,15);
+            simulator.startTimer(this,15);
             senderStatus = "Waiting for ACK";
         }
     }
@@ -89,8 +92,8 @@ public class Sender extends TransportLayer {
         } else {
             System.out.println("ACK Received");
             senderStatus = "Primed";
-            System.out.println(received_packet.getSeqnum());
-            System.out.println(received_packet.getAcknum());
+            System.out.println("Seq Num: " + received_packet.getSeqnum());
+            System.out.println("AckNum: " + received_packet.getAcknum());
             System.out.println("--------------");
         }
 
@@ -111,7 +114,7 @@ public class Sender extends TransportLayer {
     }
 
     public boolean corrupt() {
-        if(received_packet == null || verifyChecksum()) {
+        if(received_packet == null) {
             return true;
         }
         else {
@@ -119,7 +122,7 @@ public class Sender extends TransportLayer {
         }
     }
 
-    public String addBits(String a, String b){
+    /* public String addBits(String a, String b){
             String result = "";
             int carry = 0;
             int sum;
@@ -165,17 +168,19 @@ public class Sender extends TransportLayer {
 
             return true;
     }
+*/
 
-    public String oneComp(){
-        String checksumFromSender = sent_packet.getChecksum();
 
-        char[] compArrayOrigin = new char[checksumFromSender.length()];
-        for(int i=0; i<checksumFromSender.length();i++ ){
-            if(checksumFromSender.toCharArray()[i] == '0') compArrayOrigin[i] = '1';
+    public String oneComp(String check){
+
+        char[] compArrayOrigin = new char[check.length()];
+        for(int i=0; i<check.length();i++ ){
+            if(check.toCharArray()[i] == '0') compArrayOrigin[i] = '1';
             else compArrayOrigin[i] = '0';
         }
 
-        return"";
+        StringBuilder compArray1 = new StringBuilder();
+        compArray1.append(compArrayOrigin);
+        return compArray1.toString();
     }
-
 }
