@@ -28,7 +28,7 @@ public class Receiver extends TransportLayer {
         checksum.update(data, 0, data.length);
         String checksumString = Long.toBinaryString(checksum.getValue());
 
-        System.out.println("dfvgbhnjm:" );
+        System.out.println("FERNANDO:" );
 
         TransportLayerPacket newPacket = new TransportLayerPacket(seqnum,1,checksumString ,data);
         return newPacket;
@@ -37,14 +37,16 @@ public class Receiver extends TransportLayer {
 
     @Override
     public void rdt_send(byte[] data) {
+        System.out.println("RECEIVER send method");
         System.out.println("The receiver is sending an ACKNOWLEDGMENT packet" + packet.getSeqnum());
-        packet = mk_packet(data, packet.getSeqnum());
-        simulator.sendToNetworkLayer(receiver, packet);
+        TransportLayerPacket ack_pkt = mk_packet(data, packet.getSeqnum());
+        simulator.sendToNetworkLayer(this, ack_pkt);
         System.out.println("ACKNOWLEDGMENT packet has been sent.");
     }
 
     @Override
     public void rdt_receive(TransportLayerPacket pkt) {
+
         packet = new TransportLayerPacket(pkt);
 
         if(corrupt()) {
@@ -55,10 +57,11 @@ public class Receiver extends TransportLayer {
             packet = null;
         } else {
             System.out.println("Receiver has received the packet");
-            simulator.sendToApplicationLayer(receiver,packet.getData());
+            simulator.sendToApplicationLayer(this,packet.getData());
             System.out.println("Packet has been send to application layer");
             System.out.println("Sending ACK to the sender");
-            rdt_send(packet.getData());
+
+//            this.rdt_send(packet.getData());
         }
 
     }

@@ -36,19 +36,17 @@ public class Sender extends TransportLayer {
 
     @Override
     public void rdt_send(byte[] data) {
-        System.out.println("------------------------------");
+        System.out.println("SENDER send method");
 
         if(senderStatus != "Primed"){
             System.out.println("The sender hasn't received the acknowledgement packet from the receiver! ");
-
         } else {
             sent_packet = mk_packet(data,0);
             System.out.println("The sender has created the packet");
-
-            simulator.sendToNetworkLayer(sender,sent_packet);
+            simulator.sendToNetworkLayer(this,sent_packet);
             System.out.println("Packet with data: " + Arrays.toString(data) + " has been sent to network layer");
             System.out.println("The timer has started");
-            simulator.startTimer(sender,10);
+            simulator.startTimer(sender,15);
             senderStatus = "Waiting for ACK";
         }
     }
@@ -56,21 +54,31 @@ public class Sender extends TransportLayer {
 
     @Override
     public void rdt_receive(TransportLayerPacket pkt) {
+        System.out.println("SENDER receive method");
+
         System.out.println("The sender receiving an ACKNOWLEDGMENT packet");
         received_packet = new TransportLayerPacket(pkt);
+        System.out.println("yolo");
+
+        for (byte a: received_packet.getData()) {
+            System.out.print(a);
+        }
 
         if(corrupt() || !checkAcknowledgmentNum()) {
             System.out.println("The packet has been corrupted or has not been acknowledged");
-            timerInterrupt();
+//            timerInterrupt();
             System.out.println("The timer has stopped!");
             rdt_send(sent_packet.getData());
             System.out.println("The packet has been resend");
+            senderStatus = "ERROR!!!!";
 
         } else {
             System.out.println("ACK Received");
+            senderStatus = "Primed";
             timerInterrupt();
             received_packet.setAcknum(0);
         }
+
 
     }
 
