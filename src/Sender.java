@@ -14,6 +14,9 @@ public class Sender extends TransportLayer {
     TransportLayerPacket sent_packet;
     TransportLayerPacket received_packet;
     String senderStatus;
+    int akNum;
+    int prevSeqNum;
+    int packetSeqNum;
 
     @Override
     public void init() {
@@ -21,6 +24,8 @@ public class Sender extends TransportLayer {
         sent_packet = null;
         received_packet = null;
         senderStatus = "Primed";
+        prevSeqNum = 1;
+        packetSeqNum = 0;
 
         System.out.println("The sender has been initialised!" + getName());
     }
@@ -30,7 +35,12 @@ public class Sender extends TransportLayer {
         checksum.update(data, 0, data.length);
         String checksumString = Long.toBinaryString(checksum.getValue());
 
-        TransportLayerPacket newPacket = new TransportLayerPacket(seqnum,0,checksumString,data);
+        TransportLayerPacket newPacket = new TransportLayerPacket(seqnum,akNum,checksumString,data);
+        if(akNum == 0){
+            akNum++;
+        }else{
+            akNum--;
+        }
         return newPacket;
     }
 
@@ -39,12 +49,14 @@ public class Sender extends TransportLayer {
         System.out.println("SENDER send method");
 
         if(senderStatus != "Primed"){
-            System.out.println("The sender hasn't received the acknowledgement packet from the receiver! ");
+            //System.out.println("The sender hasn't received the acknowledgement packet from the receiver! ");
         } else {
-            sent_packet = mk_packet(data,0);
+            sent_packet = mk_packet(data,packetSeqNum);
             System.out.println("The sender has created the packet");
+
             simulator.sendToNetworkLayer(this,sent_packet);
             System.out.println("Packet with data: " + Arrays.toString(data) + " has been sent to network layer");
+
             System.out.println("The timer has started");
             simulator.startTimer(sender,15);
             senderStatus = "Waiting for ACK";
@@ -58,7 +70,6 @@ public class Sender extends TransportLayer {
 
         System.out.println("The sender receiving an ACKNOWLEDGMENT packet");
         received_packet = new TransportLayerPacket(pkt);
-        System.out.println("yolo");
 
         for (byte a: received_packet.getData()) {
             System.out.print(a);
@@ -68,14 +79,14 @@ public class Sender extends TransportLayer {
             System.out.println("The packet has been corrupted or has not been acknowledged");
 //            timerInterrupt();
             System.out.println("The timer has stopped!");
-            rdt_send(sent_packet.getData());
+
+            this.rdt_send(received_packet.getData());
             System.out.println("The packet has been resend");
             senderStatus = "ERROR!!!!";
 
         } else {
             System.out.println("ACK Received");
             senderStatus = "Primed";
-            timerInterrupt();
             received_packet.setAcknum(0);
         }
 
@@ -88,16 +99,15 @@ public class Sender extends TransportLayer {
     }
 
     public boolean checkAcknowledgmentNum() {
-        if(received_packet.getAcknum() == 0) {
-            return true;
+        if (received_packet.getSeqnum() == prevSeqNum){
+            return received_packet.getAcknum() == 1;
         }
-        else {
-            return false;
-        }
+        return true;
+
     }
 
     public boolean corrupt() {
-        if(received_packet == null || !verifyChecksum()) {
+        if(received_packet == null || verifyChecksum()) {
             return true;
         }
         else {

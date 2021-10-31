@@ -28,8 +28,6 @@ public class Receiver extends TransportLayer {
         checksum.update(data, 0, data.length);
         String checksumString = Long.toBinaryString(checksum.getValue());
 
-        System.out.println("FERNANDO:" );
-
         TransportLayerPacket newPacket = new TransportLayerPacket(seqnum,1,checksumString ,data);
         return newPacket;
     }
@@ -61,14 +59,13 @@ public class Receiver extends TransportLayer {
             System.out.println("Packet has been send to application layer");
             System.out.println("Sending ACK to the sender");
 
-//            this.rdt_send(packet.getData());
+           this.rdt_send(packet.getData());
         }
 
     }
 
     @Override
     public void timerInterrupt() {
-        simulator.stopTimer(receiver);
     }
 
     public boolean corrupt() {
