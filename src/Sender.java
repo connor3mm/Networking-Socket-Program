@@ -51,8 +51,8 @@ public class Sender extends TransportLayer {
     public void rdt_send(byte[] data) {
         System.out.println("SENDER send method");
 
-        if(senderStatus != "Primed"){
-            System.out.println("The sender hasn't received the acknowledgement packet from the receiver! ");
+        if(this.senderStatus != "Primed"){
+            System.out.println("Waiting to send again! ");
         } else {
             sent_packet = mk_packet(data,packetSeqNum);
             System.out.println("The sender has created the packet");
@@ -63,12 +63,13 @@ public class Sender extends TransportLayer {
                 packetSeqNum--;
             }
 
+            senderStatus = "Waiting for ACK";
             simulator.sendToNetworkLayer(this,sent_packet);
             System.out.println("Packet with data: " + Arrays.toString(data) + " has been sent to network layer");
 
             System.out.println("The timer has started");
             simulator.startTimer(this,15);
-            senderStatus = "Waiting for ACK";
+
         }
     }
 
@@ -82,19 +83,23 @@ public class Sender extends TransportLayer {
 
         if(corrupt() || !checkAcknowledgmentNum()) {
             System.out.println("The packet has been corrupted or has not been acknowledged");
-//          timerInterrupt();
-            System.out.println("The timer has stopped!");
 
-            this.rdt_send(received_packet.getData());
+            System.out.println("The timer has stopped!");
+            simulator.stopTimer(this);
+            //this.rdt_send(received_packet.getData());
             System.out.println("The packet has been resend");
-            senderStatus = "ERROR!!!!";
+            //senderStatus = "ERROR!!!!";
+            timerInterrupt();
+
 
         } else {
             System.out.println("ACK Received");
+
             senderStatus = "Primed";
             System.out.println("Seq Num: " + received_packet.getSeqnum());
             System.out.println("AckNum: " + received_packet.getAcknum());
             System.out.println("--------------");
+            simulator.stopTimer(this);
         }
 
 
@@ -106,6 +111,7 @@ public class Sender extends TransportLayer {
             senderStatus = "Primed";
             rdt_send(sent_packet.getData());
         }
+
     }
 
 
