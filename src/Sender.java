@@ -50,7 +50,7 @@ public class Sender extends TransportLayer {
     public void rdt_send(byte[] data) {
         System.out.println("SENDER send method");
 
-        if(this.senderStatus != "Primed"){
+        if(!this.senderStatus.equals("Primed")){
             System.out.println("Checking if another packet can be sent....");
         } else {
             sent_packet = mk_packet(data,packetSeqNum);
@@ -122,62 +122,8 @@ public class Sender extends TransportLayer {
     }
 
     public boolean corrupt() {
-        if(received_packet == null) {
-            return true;
-        }
-        else {
-            return false;
-        }
+        return received_packet == null;
     }
-
-    /* public String addBits(String a, String b){
-            String result = "";
-            int carry = 0;
-            int sum;
-
-            for (int i = a.length() - 1; i >= 0; i--){
-                int first = a.charAt(i)  - '0';
-                int second = b.charAt(i)  - '0';
-
-                sum = (first ^ second ^ carry) + '0';
-                result = (char) sum + result;
-
-                carry = (first & second) | (second & carry) | (first & carry);
-            }
-
-            if (carry == 1) result = "1" + result; //overflow
-        //System.out.println("Testing result:" + result);
-            return result;
-    }
-
-    public boolean verifyChecksum(){
-
-            String checksumFromSender = sent_packet.getChecksum();
-            String checksumFromReceiver = received_packet.getChecksum();
-
-            String result = addBits(checksumFromSender, checksumFromReceiver);
-            System.out.println("Adding the checksum: " + result);
-            //converting to one's compliment
-
-            char[] compArrayOrigin = new char[result.length()];
-            for(int i=0; i<result.length();i++ ){
-                if(result.toCharArray()[i] == '0') compArrayOrigin[i] = '1';
-                    else compArrayOrigin[i] = '0';
-            }
-
-            StringBuilder compArray1 = new StringBuilder();
-            System.out.println("comparray: " + compArray1.append(compArrayOrigin));
-
-            System.out.println(addBits(result,compArray1.toString()));
-            //checking if the checksum is valid
-            for(int i=0; i<result.length();i++ ){
-                if(compArray1.charAt(i)=='0') return false;
-            }
-
-            return true;
-    }
-*/
-
 
     public String oneComp(String check){
 
@@ -187,8 +133,6 @@ public class Sender extends TransportLayer {
             else compArrayOrigin[i] = '0';
         }
 
-        StringBuilder compArray1 = new StringBuilder();
-        compArray1.append(compArrayOrigin);
-        return compArray1.toString();
+        return String.valueOf(compArrayOrigin);
     }
 }
