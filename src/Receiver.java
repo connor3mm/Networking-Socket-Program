@@ -98,6 +98,7 @@ public class Receiver extends TransportLayer {
         String result = addBits(checksumFromSender, checksumString);
         System.out.println("Adding the checksum: " + result);
 
+        
         //checking if the checksum is valid
         for(int i=0; i<result.length();i++ ){
             if(result.charAt(i)=='0') return false;

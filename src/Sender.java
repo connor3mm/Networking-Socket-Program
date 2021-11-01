@@ -52,7 +52,7 @@ public class Sender extends TransportLayer {
         System.out.println("SENDER send method");
 
         if(senderStatus != "Primed"){
-            //System.out.println("The sender hasn't received the acknowledgement packet from the receiver! ");
+            System.out.println("The sender hasn't received the acknowledgement packet from the receiver! ");
         } else {
             sent_packet = mk_packet(data,packetSeqNum);
             System.out.println("The sender has created the packet");
@@ -82,7 +82,7 @@ public class Sender extends TransportLayer {
 
         if(corrupt() || !checkAcknowledgmentNum()) {
             System.out.println("The packet has been corrupted or has not been acknowledged");
-//            timerInterrupt();
+//          timerInterrupt();
             System.out.println("The timer has stopped!");
 
             this.rdt_send(received_packet.getData());
@@ -102,7 +102,10 @@ public class Sender extends TransportLayer {
 
     @Override
     public void timerInterrupt() {
-        simulator.stopTimer(sender);
+        if(corrupt()) {
+            senderStatus = "Primed";
+            rdt_send(sent_packet.getData());
+        }
     }
 
 
