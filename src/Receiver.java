@@ -44,7 +44,7 @@ public class Receiver extends TransportLayer {
 
     @Override
     public void rdt_receive(TransportLayerPacket pkt) {
-
+        System.out.println("RECEIVE receive method");
         packet = new TransportLayerPacket(pkt);
 
         if(corrupt()) {

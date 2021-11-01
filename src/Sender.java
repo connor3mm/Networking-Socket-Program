@@ -34,7 +34,6 @@ public class Sender extends TransportLayer {
         Checksum checksum = new CRC32();
         checksum.update(data, 0, data.length);
         String checksumString = Long.toBinaryString(checksum.getValue());
-
         checksumString = oneComp(checksumString);
 
 
@@ -52,7 +51,7 @@ public class Sender extends TransportLayer {
         System.out.println("SENDER send method");
 
         if(this.senderStatus != "Primed"){
-            System.out.println("Waiting to send again! ");
+            System.out.println("Checking if another packet can be sent....");
         } else {
             sent_packet = mk_packet(data,packetSeqNum);
             System.out.println("The sender has created the packet");
@@ -64,11 +63,11 @@ public class Sender extends TransportLayer {
             }
 
             senderStatus = "Waiting for ACK";
-            simulator.sendToNetworkLayer(this,sent_packet);
             System.out.println("Packet with data: " + Arrays.toString(data) + " has been sent to network layer");
+            simulator.sendToNetworkLayer(this,sent_packet);
 
             System.out.println("The timer has started");
-            simulator.startTimer(this,15);
+            simulator.startTimer(this,2000);
 
         }
     }
