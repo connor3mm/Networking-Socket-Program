@@ -51,7 +51,7 @@ public class Sender extends TransportLayer {
         System.out.println("SENDER send method");
 
         if(this.senderStatus != "Primed"){
-            System.out.println("Checking if another packet can be sent....");
+            System.out.println("Checking if another packet can be sent... (timer still on)");
         } else {
             sent_packet = mk_packet(data,packetSeqNum);
             System.out.println("The sender has created the packet");
@@ -78,7 +78,6 @@ public class Sender extends TransportLayer {
         System.out.println("SENDER receive method");
 
         System.out.println("The sender receiving an ACKNOWLEDGMENT packet");
-        received_packet = new TransportLayerPacket(pkt);
 
         if(corrupt() || !checkAcknowledgmentNum()) {
             System.out.println("The packet has been corrupted or has not been acknowledged");
