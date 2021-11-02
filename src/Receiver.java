@@ -51,8 +51,9 @@ public class Receiver extends TransportLayer {
             System.out.println("The packet has been corrupted");
             System.out.println("Waiting for a new packet to be sent");
         } else if(duplicate()) {
-            System.out.println("Duplicate packet! Discard!!!");
-            packet = null;
+            System.out.println("Duplicate packet! ");
+            packet.setData(new byte[0]);
+            this.rdt_send(packet.getData());
         } else {
             System.out.println("Receiver has received the packet");
             simulator.sendToApplicationLayer(this,packet.getData());

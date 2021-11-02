@@ -78,7 +78,8 @@ public class Sender extends TransportLayer {
         System.out.println("SENDER receive method");
 
         System.out.println("The sender receiving an ACKNOWLEDGMENT packet");
-
+        received_packet = new TransportLayerPacket(pkt);
+        //received_packet.setData(new byte[0]);//used to test duplicate ACK packets
         if(corrupt() || !checkAcknowledgmentNum()) {
             System.out.println("The packet has been corrupted or has not been acknowledged");
 
@@ -90,6 +91,10 @@ public class Sender extends TransportLayer {
             timerInterrupt();
 
 
+        }else if(received_packet.getData().length == 0){
+            System.out.println("Detected duplicate ACK packet! ");
+            simulator.stopTimer(this);
+            senderStatus = "Primed";
         } else {
             System.out.println("ACK Received");
 
@@ -99,7 +104,6 @@ public class Sender extends TransportLayer {
             System.out.println("--------------");
             simulator.stopTimer(this);
         }
-
 
     }
 
