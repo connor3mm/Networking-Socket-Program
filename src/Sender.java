@@ -37,10 +37,10 @@ public class Sender extends TransportLayer {
         checksumString = oneComp(checksumString);
 
 
-        TransportLayerPacket newPacket = new TransportLayerPacket(seqnum,akNum,checksumString,data);
-        if(akNum == 0){
+        TransportLayerPacket newPacket = new TransportLayerPacket(seqnum, akNum, checksumString, data);
+        if (akNum == 0) {
             akNum++;
-        }else{
+        } else {
             akNum--;
         }
         return newPacket;
@@ -50,24 +50,24 @@ public class Sender extends TransportLayer {
     public void rdt_send(byte[] data) {
         System.out.println("SENDER send method");
 
-        if(this.senderStatus != "Primed"){
+        if (!this.senderStatus.equals("Primed")) {
             System.out.println("Checking if another packet can be sent... (timer still on)");
         } else {
-            sent_packet = mk_packet(data,packetSeqNum);
+            sent_packet = mk_packet(data, packetSeqNum);
             System.out.println("The sender has created the packet");
             prevSeqNum = packetSeqNum;
-            if(packetSeqNum == 0){
+            if (packetSeqNum == 0) {
                 packetSeqNum++;
-            }else{
+            } else {
                 packetSeqNum--;
             }
 
             senderStatus = "Waiting for ACK";
             System.out.println("Packet with data: " + Arrays.toString(data) + " has been sent to network layer");
-            simulator.sendToNetworkLayer(this,sent_packet);
+            simulator.sendToNetworkLayer(this, sent_packet);
 
             System.out.println("The timer has started");
-            simulator.startTimer(this,2000);
+            simulator.startTimer(this, 2000);
 
         }
     }
@@ -80,7 +80,7 @@ public class Sender extends TransportLayer {
         System.out.println("The sender receiving an ACKNOWLEDGMENT packet");
         received_packet = new TransportLayerPacket(pkt);
         //received_packet.setData(new byte[0]);//used to test duplicate ACK packets
-        if(corrupt() || !checkAcknowledgmentNum()) {
+        if (corrupt() || !checkAcknowledgmentNum()) {
             System.out.println("The packet has been corrupted or has not been acknowledged");
 
             System.out.println("The timer has stopped!");
@@ -91,7 +91,7 @@ public class Sender extends TransportLayer {
             timerInterrupt();
 
 
-        }else if(received_packet.getData().length == 0){
+        } else if (received_packet.getData().length == 0) {
             System.out.println("Detected duplicate ACK packet! ");
             simulator.stopTimer(this);
             senderStatus = "Primed";
@@ -109,7 +109,7 @@ public class Sender extends TransportLayer {
 
     @Override
     public void timerInterrupt() {
-        if(corrupt()) {
+        if (corrupt()) {
             senderStatus = "Primed";
             rdt_send(sent_packet.getData());
         }
@@ -118,80 +118,24 @@ public class Sender extends TransportLayer {
 
 
     public boolean checkAcknowledgmentNum() {
-        if (received_packet.getSeqnum() == prevSeqNum){
+        if (received_packet.getSeqnum() == prevSeqNum) {
             return received_packet.getAcknum() == sent_packet.getAcknum();
         }
         return false;
     }
 
     public boolean corrupt() {
-        if(received_packet == null) {
-            return true;
-        }
-        else {
-            return false;
-        }
+        return received_packet == null;
     }
 
-    /* public String addBits(String a, String b){
-            String result = "";
-            int carry = 0;
-            int sum;
-
-            for (int i = a.length() - 1; i >= 0; i--){
-                int first = a.charAt(i)  - '0';
-                int second = b.charAt(i)  - '0';
-
-                sum = (first ^ second ^ carry) + '0';
-                result = (char) sum + result;
-
-                carry = (first & second) | (second & carry) | (first & carry);
-            }
-
-            if (carry == 1) result = "1" + result; //overflow
-        //System.out.println("Testing result:" + result);
-            return result;
-    }
-
-    public boolean verifyChecksum(){
-
-            String checksumFromSender = sent_packet.getChecksum();
-            String checksumFromReceiver = received_packet.getChecksum();
-
-            String result = addBits(checksumFromSender, checksumFromReceiver);
-            System.out.println("Adding the checksum: " + result);
-            //converting to one's compliment
-
-            char[] compArrayOrigin = new char[result.length()];
-            for(int i=0; i<result.length();i++ ){
-                if(result.toCharArray()[i] == '0') compArrayOrigin[i] = '1';
-                    else compArrayOrigin[i] = '0';
-            }
-
-            StringBuilder compArray1 = new StringBuilder();
-            System.out.println("comparray: " + compArray1.append(compArrayOrigin));
-
-            System.out.println(addBits(result,compArray1.toString()));
-            //checking if the checksum is valid
-            for(int i=0; i<result.length();i++ ){
-                if(compArray1.charAt(i)=='0') return false;
-            }
-
-            return true;
-    }
-*/
-
-
-    public String oneComp(String check){
+    public String oneComp(String check) {
 
         char[] compArrayOrigin = new char[check.length()];
-        for(int i=0; i<check.length();i++ ){
-            if(check.toCharArray()[i] == '0') compArrayOrigin[i] = '1';
+        for (int i = 0; i < check.length(); i++) {
+            if (check.toCharArray()[i] == '0') compArrayOrigin[i] = '1';
             else compArrayOrigin[i] = '0';
         }
 
-        StringBuilder compArray1 = new StringBuilder();
-        compArray1.append(compArrayOrigin);
-        return compArray1.toString();
+        return String.valueOf(compArrayOrigin);
     }
 }

@@ -28,8 +28,7 @@ public class Receiver extends TransportLayer {
         checksum.update(data, 0, data.length);
         String checksumString = Long.toBinaryString(checksum.getValue());
 
-        TransportLayerPacket newPacket = new TransportLayerPacket(seqnum,packet.getAcknum(),checksumString ,data);
-        return newPacket;
+        return new TransportLayerPacket(seqnum, packet.getAcknum(), checksumString, data);
     }
 
 
@@ -47,16 +46,16 @@ public class Receiver extends TransportLayer {
         System.out.println("RECEIVE receive method");
         packet = new TransportLayerPacket(pkt);
 
-        if(corrupt()) {
+        if (corrupt()) {
             System.out.println("The packet has been corrupted");
             System.out.println("Waiting for a new packet to be sent");
-        } else if(duplicate()) {
+        } else if (duplicate()) {
             System.out.println("Duplicate packet! ");
             packet.setData(new byte[0]);
             this.rdt_send(packet.getData());
         } else {
             System.out.println("Receiver has received the packet");
-            simulator.sendToApplicationLayer(this,packet.getData());
+            simulator.sendToApplicationLayer(this, packet.getData());
             System.out.println("Packet has been send to application layer");
             System.out.println("Sending ACK to the sender");
 
@@ -70,25 +69,15 @@ public class Receiver extends TransportLayer {
     }
 
     public boolean corrupt() {
-        if(packet == null || !verifyChecksum()) {
-            return true;
-        }
-        else {
-            return false;
-        }
+        return packet == null || !verifyChecksum();
     }
 
     public boolean duplicate() {
-        if(previousSeqNum == packet.getSeqnum()) {
-            return true;
-        }
-        else {
-            return false;
-        }
+        return previousSeqNum == packet.getSeqnum();
     }
 
 
-    public boolean verifyChecksum(){
+    public boolean verifyChecksum() {
 
         String checksumFromSender = packet.getChecksum();
 
@@ -99,33 +88,33 @@ public class Receiver extends TransportLayer {
         String result = addBits(checksumFromSender, checksumString);
         System.out.println("Adding the checksum: " + result);
 
-        
+
         //checking if the checksum is valid
-        for(int i=0; i<result.length();i++ ){
-            if(result.charAt(i)=='0') return false;
+        for (int i = 0; i < result.length(); i++) {
+            if (result.charAt(i) == '0') return false;
         }
 
         return true;
     }
 
-    public String addBits(String a, String b){
-        String result = "";
+    public String addBits(String a, String b) {
+        StringBuilder result = new StringBuilder();
         int carry = 0;
         int sum;
 
-        for (int i = a.length() - 1; i >= 0; i--){
-            int first = a.charAt(i)  - '0';
-            int second = b.charAt(i)  - '0';
+        for (int i = a.length() - 1; i >= 0; i--) {
+            int first = a.charAt(i) - '0';
+            int second = b.charAt(i) - '0';
 
             sum = (first ^ second ^ carry) + '0';
-            result = (char) sum + result;
+            result.insert(0, (char) sum);
 
             carry = (first & second) | (second & carry) | (first & carry);
         }
 
-        if (carry == 1) result = "1" + result;
+        if (carry == 1) result.insert(0, "1");
         //System.out.println("Testing result:" + result);
-        return result;
+        return result.toString();
     }
 
 }
