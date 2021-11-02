@@ -1,11 +1,19 @@
 import java.util.Arrays;
 import java.util.zip.CRC32;
 import java.util.zip.Checksum;
-import java.lang.Math;
+
+/*
+ * Sender Class - handles all the functionalities on the sender side of RDT 3.0 Protocol
+ */
 
 public class Sender extends TransportLayer {
 
 
+    /**
+     * A constructor for the Sender class
+     * @param name
+     * @param simulator
+     */
     public Sender(String name, NetworkSimulator simulator) {
         super(name, simulator);
     }
@@ -18,6 +26,9 @@ public class Sender extends TransportLayer {
     int prevSeqNum;
     int packetSeqNum;
 
+    /**
+     * This method is used to initialize all variables that we use in the Sender class
+     */
     @Override
     public void init() {
         sender = new Sender("Sender", simulator);
@@ -30,12 +41,19 @@ public class Sender extends TransportLayer {
         System.out.println("The sender has been initialised!" + getName());
     }
 
+
+    /**
+     * This method is used to make a new packet to be sent to the receiver
+     * @param data
+     * @param seqnum
+     * @return newPacket
+     */
     public TransportLayerPacket mk_packet(byte[] data, int seqnum) {
+        //checksum for the packet we send to Receiver
         Checksum checksum = new CRC32();
         checksum.update(data, 0, data.length);
         String checksumString = Long.toBinaryString(checksum.getValue());
         checksumString = oneComp(checksumString);
-
 
         TransportLayerPacket newPacket = new TransportLayerPacket(seqnum, akNum, checksumString, data);
         if (akNum == 0) {
@@ -46,6 +64,11 @@ public class Sender extends TransportLayer {
         return newPacket;
     }
 
+    /**
+     * Ths method sends the newly created packet to the receiver and starts the timer when the packet is sent
+     * It changes state from waiting from call above to waiting for ACK when it sends the packet
+     * @param data
+     */
     @Override
     public void rdt_send(byte[] data) {
         System.out.println("SENDER send method");
@@ -72,7 +95,15 @@ public class Sender extends TransportLayer {
         }
     }
 
-
+    /**
+     * This method is used from the sender to receive an ACK packet from the receiver
+     * It handles scenarios such as:
+     *  - if an ACK has been received successfully
+     *  - if the packet that has been sent is corrupted
+     *  - if no ACK has been received
+     *  - receiving duplicate ACK packet
+     * @param pkt
+     */
     @Override
     public void rdt_receive(TransportLayerPacket pkt) {
         System.out.println("SENDER receive method");
@@ -85,9 +116,8 @@ public class Sender extends TransportLayer {
 
             System.out.println("The timer has stopped!");
             simulator.stopTimer(this);
-            //this.rdt_send(received_packet.getData());
+
             System.out.println("The packet has been resend");
-            //senderStatus = "ERROR!!!!";
             timerInterrupt();
 
 
@@ -107,6 +137,9 @@ public class Sender extends TransportLayer {
 
     }
 
+    /**
+     * This method is used to resend the packet if the timer has timed out and no ACK has been received from the Receiver in the given amount of time
+     */
     @Override
     public void timerInterrupt() {
         if (corrupt()) {
@@ -117,6 +150,10 @@ public class Sender extends TransportLayer {
     }
 
 
+    /**
+     * This method verifies if the ACK packet is received for the correct packet according to its seqNum
+     * @return boolean
+     */
     public boolean checkAcknowledgmentNum() {
         if (received_packet.getSeqnum() == prevSeqNum) {
             return received_packet.getAcknum() == sent_packet.getAcknum();
@@ -124,10 +161,19 @@ public class Sender extends TransportLayer {
         return false;
     }
 
+    /**
+     * This method checks if the packet has been corrupted
+     * @return null
+     */
     public boolean corrupt() {
         return received_packet == null;
     }
 
+    /**
+     * This method takes the checksum for the packet and adds ones' complement
+     * @param check
+     * @return the value of the compArrayOrigin
+     */
     public String oneComp(String check) {
 
         char[] compArrayOrigin = new char[check.length()];
