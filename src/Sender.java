@@ -53,7 +53,12 @@ public class Sender extends TransportLayer {
         if (!this.senderStatus.equals("Primed")) {
             System.out.println("Checking if another packet can be sent... (timer still on)");
         } else {
+
+            //    Testing the network simulator for different cases
+            //    2) Here we are changing this method to test for NULL PACKET
+            //    data = null;
             sent_packet = mk_packet(data, packetSeqNum);
+
             System.out.println("The sender has created the packet");
             prevSeqNum = packetSeqNum;
             if (packetSeqNum == 0) {
@@ -81,6 +86,11 @@ public class Sender extends TransportLayer {
         received_packet = new TransportLayerPacket(pkt);
         //received_packet.setData(new byte[0]);//used to test duplicate ACK packets
         if (corrupt() || !checkAcknowledgmentNum()) {
+
+            //  Testing the network simulator for different cases
+            // 3) Testing for missing ack packet
+            // received_packet.setAcknum(99);
+
             System.out.println("The packet has been corrupted or has not been acknowledged");
 
             System.out.println("The timer has stopped!");

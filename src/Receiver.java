@@ -72,6 +72,13 @@ public class Receiver extends TransportLayer {
         return packet == null || !verifyChecksum();
     }
 
+//    Testing the network simulator for different cases
+
+//    2) Here we are changing this method to test for DUPLICATE PACKETS
+//    public boolean duplicate() {
+//        return previousSeqNum != packet.getSeqnum();
+//    }
+
     public boolean duplicate() {
         return previousSeqNum == packet.getSeqnum();
     }
