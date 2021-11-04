@@ -79,6 +79,9 @@ public class Receiver extends TransportLayer {
         System.out.println("RECEIVER receive method");
         packet = new TransportLayerPacket(pkt);
 
+        //previousSeqNum = 0; -> test - setting the previous seq num to 0 to simulate receiving duplicate packets
+        //packet = null; -> test - to check for packet corruption
+
         if (corrupt()) {
             System.out.println("The packet has been corrupted");
             System.out.println("Waiting for a new packet to be sent");
